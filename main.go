@@ -80,6 +80,4 @@ func chunkFile(fileToBeChunked string) {
 
 func main() {
 
-	chunkFile("./vortex-storage.exe")
-	aggregateChunks()
 }
