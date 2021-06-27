@@ -2,82 +2,90 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
-	"math"
-	"os"
-	"strconv"
-	"strings"
+
+	"github.com/IacopoMelani/vortex-storage/network"
 )
 
-func aggregateChunks() {
+// func aggregateChunks() {
 
-	dirEntries, err := os.ReadDir(".")
-	if err != nil {
-		panic(err)
-	}
+// 	dirEntries, err := os.ReadDir(".")
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	recreatedFileName := "recreated_file.exe"
+// 	recreatedFileName := "recreated_file.exe"
 
-	file, err := os.Create(recreatedFileName)
-	if err != nil {
-		panic(err)
-	}
+// 	file, err := os.Create(recreatedFileName)
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	for _, dirEntry := range dirEntries {
+// 	for _, dirEntry := range dirEntries {
 
-		if dirEntry.IsDir() {
-			continue
-		}
+// 		if dirEntry.IsDir() {
+// 			continue
+// 		}
 
-		if !strings.Contains(dirEntry.Name(), "chunk_") {
-			continue
-		}
+// 		if !strings.Contains(dirEntry.Name(), "chunk_") {
+// 			continue
+// 		}
 
-		b, err := os.ReadFile(dirEntry.Name())
-		if err != nil {
-			panic(err)
-		}
+// 		b, err := os.ReadFile(dirEntry.Name())
+// 		if err != nil {
+// 			panic(err)
+// 		}
 
-		file.Write(b)
-	}
-}
+// 		file.Write(b)
+// 	}
+// }
 
-func chunkFile(fileToBeChunked string) {
+// func chunkFile(fileToBeChunked string) {
 
-	file, err := os.Open(fileToBeChunked)
-	if err != nil {
-		panic(err)
-	}
+// 	file, err := os.Open(fileToBeChunked)
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	defer file.Close()
+// 	defer file.Close()
 
-	fileInfo, _ := file.Stat()
+// 	fileInfo, _ := file.Stat()
 
-	var fileSize int64 = fileInfo.Size()
+// 	var fileSize int64 = fileInfo.Size()
 
-	const fileChunk = 1 * (1 << 18) // chunk sized
+// 	const fileChunk = 1 * (1 << 18) // chunk sized
 
-	// calculate total number of parts the file will be chunked into
+// 	// calculate total number of parts the file will be chunked into
 
-	totalPartsNum := uint64(math.Ceil(float64(fileSize) / float64(fileChunk)))
+// 	totalPartsNum := uint64(math.Ceil(float64(fileSize) / float64(fileChunk)))
 
-	fmt.Printf("Splitting to %d pieces.\n", totalPartsNum)
+// 	fmt.Printf("Splitting to %d pieces.\n", totalPartsNum)
 
-	for i := uint64(0); i < totalPartsNum; i++ {
+// 	for i := uint64(0); i < totalPartsNum; i++ {
 
-		partSize := int(math.Min(fileChunk, float64(fileSize-int64(i*fileChunk))))
-		partBuffer := make([]byte, partSize)
+// 		partSize := int(math.Min(fileChunk, float64(fileSize-int64(i*fileChunk))))
+// 		partBuffer := make([]byte, partSize)
 
-		file.Read(partBuffer)
+// 		file.Read(partBuffer)
 
-		// write/save buffer to disk
-		fileName := "chunk_" + strconv.FormatUint(i, 10)
-		ioutil.WriteFile(fileName, partBuffer, os.ModeAppend)
+// 		// write/save buffer to disk
+// 		fileName := "chunk_" + strconv.FormatUint(i, 10)
+// 		ioutil.WriteFile(fileName, partBuffer, os.ModeAppend)
 
-		fmt.Println("Split to : ", fileName)
-	}
-}
+// 		fmt.Println("Split to : ", fileName)
+// 	}
+// }
 
 func main() {
 
+	node, err := network.NewNode()
+	if err != nil {
+		panic(err)
+	}
+
+	joinToken, err := node.JoinToken()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(joinToken.Value())
 }

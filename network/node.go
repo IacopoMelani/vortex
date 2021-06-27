@@ -9,25 +9,30 @@ import (
 	"github.com/google/uuid"
 )
 
+// MARK: consts
+
 const (
-	DefaultPort = ":6414"
+	DefaultRPCPort = ":6414"
 )
+
+// MARK: Node, NodeConfig & constructors
 
 // Node - Defines a node of vortex network
 type Node struct {
 	sync.RWMutex
-	neighbors map[string]*Node
-	host      string
-	id        string
-	name      string
-	port      string
+	neighbors  map[string]*Node
+	joinTokens map[string]*JoinToken
+	host       string
+	id         string
+	name       string
+	rpcPort    string
 }
 
 // NodeConfig - Defines a node config struct
 type NodeConfig struct {
-	Name string
-	IP   string
-	Port string
+	Name    string
+	IP      string
+	RPCPort string
 }
 
 // NewNode - Returns a new instance of Node
@@ -44,11 +49,12 @@ func NewNode() (*Node, error) {
 	}
 
 	return &Node{
-		id:        uuid.New().String(),
-		name:      hostname,
-		host:      ip.String(),
-		port:      DefaultPort,
-		neighbors: make(map[string]*Node),
+		id:         uuid.New().String(),
+		name:       hostname,
+		host:       ip.String(),
+		rpcPort:    DefaultRPCPort,
+		neighbors:  make(map[string]*Node),
+		joinTokens: make(map[string]*JoinToken),
 	}, nil
 }
 
@@ -66,8 +72,8 @@ func NewWithConfig(config NodeConfig) (*Node, error) {
 	if config.Name != "" {
 		node.name = config.Name
 	}
-	if config.Port != "" {
-		node.port = config.Port
+	if config.RPCPort != "" {
+		node.rpcPort = config.RPCPort
 	}
 	if config.IP != "" {
 		node.host = config.IP
@@ -76,7 +82,9 @@ func NewWithConfig(config NodeConfig) (*Node, error) {
 	return node, nil
 }
 
-// AddNeighbor - Add new node if the neighbors networks
+// MARK: Node exported
+
+// AddNeighbor - Add new node in the neighbors networks
 func (n *Node) AddNeighbor(newNode *Node) error {
 
 	n.Lock()
@@ -105,6 +113,24 @@ func (n *Node) Name() string {
 	defer n.RUnlock()
 	return n.name
 }
+
+// JoinToken - Return a new JoinToken
+func (n *Node) JoinToken() (*JoinToken, error) {
+
+	jt, err := NewJoinToken()
+	if err != nil {
+		return nil, err
+	}
+
+	n.Lock()
+	defer n.Unlock()
+
+	n.joinTokens[jt.ID()] = jt
+
+	return jt, nil
+}
+
+// MARK: NodeAlreadyNeighborError
 
 // NodeAlreadyNeighborError - Defines error for
 type NodeAlreadyNeighborError struct {
