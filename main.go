@@ -82,10 +82,10 @@ func main() {
 		panic(err)
 	}
 
-	joinToken, err := node.JoinToken()
+	joinToken, err := node.GetJoinToken()
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(joinToken.Value())
+	fmt.Println("--host " + joinToken.Host() + " --token " + joinToken.Value())
 }

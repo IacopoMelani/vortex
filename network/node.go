@@ -114,8 +114,8 @@ func (n *Node) Name() string {
 	return n.name
 }
 
-// JoinToken - Return a new JoinToken
-func (n *Node) JoinToken() (*JoinToken, error) {
+// GetJoinToken - Return a new GetJoinToken
+func (n *Node) GetJoinToken() (*JoinToken, error) {
 
 	jt, err := NewJoinToken()
 	if err != nil {
