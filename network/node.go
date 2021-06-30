@@ -5,7 +5,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/IacopoMelani/vortex-storage/utils"
+	"github.com/IacopoMelani/vortex/utils"
 	"github.com/google/uuid"
 )
 
@@ -100,6 +100,13 @@ func (n *Node) AddNeighbor(newNode *Node) error {
 	return nil
 }
 
+// Host - Returns current node host
+func (n *Node) Host() string {
+	n.RLock()
+	defer n.RUnlock()
+	return n.host
+}
+
 // ID - Returns Node ID
 func (n *Node) ID() string {
 	n.RLock()
@@ -114,10 +121,10 @@ func (n *Node) Name() string {
 	return n.name
 }
 
-// GetJoinToken - Return a new GetJoinToken
-func (n *Node) GetJoinToken() (*JoinToken, error) {
+// NewJoinToken - Return a new NewJoinToken
+func (n *Node) NewJoinToken() (*JoinToken, error) {
 
-	jt, err := NewJoinToken()
+	jt, err := NewJoinTokenWithConfig(JoinTokenConfig{Host: n.Host()})
 	if err != nil {
 		return nil, err
 	}

@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/IacopoMelani/vortex-storage/network"
+	"github.com/IacopoMelani/vortex/cmd"
 )
 
 // func aggregateChunks() {
@@ -77,15 +75,17 @@ import (
 
 func main() {
 
-	node, err := network.NewNode()
-	if err != nil {
-		panic(err)
-	}
+	cmd.Parse()
 
-	joinToken, err := node.GetJoinToken()
-	if err != nil {
-		panic(err)
-	}
+	// node, err := network.NewNode()
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	fmt.Println("--host " + joinToken.Host() + " --token " + joinToken.Value())
+	// joinToken, err := node.NewJoinToken()
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// fmt.Println(joinToken.JoinCommand())
 }

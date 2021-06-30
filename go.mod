@@ -1,4 +1,4 @@
-module github.com/IacopoMelani/vortex-storage
+module github.com/IacopoMelani/vortex
 
 go 1.16
 
