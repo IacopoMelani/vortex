@@ -13,7 +13,7 @@ import (
 // MARK: consts
 
 const (
-	VortexVersion = "0.0.1"
+	VortexCLIVersion = "0.0.1"
 )
 
 // MARK: Command & Flag interface
@@ -140,7 +140,7 @@ func Parse() error {
 
 // ShowBanner - Shows the banner
 func ShowBanner() {
-	str := strings.Replace(banner, "<VERSION>", color.GreenString("%s", VortexVersion), -1)
+	str := strings.Replace(banner, "<VERSION>", color.GreenString("%s", VortexCLIVersion), -1)
 	fmt.Fprintf(color.Output, "%s", str)
 }
 
