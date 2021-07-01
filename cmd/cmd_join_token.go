@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/IacopoMelani/vortex/network"
 )
@@ -31,6 +30,8 @@ func NewJoinTokenCmd() *JoinTokenCmd {
 					Usage:          "join-token -h | join-token --help",
 					ShortVersion:   "-h",
 					VerboseVersion: "--help",
+					Present:        false,
+					NeedValue:      false,
 				},
 				&StandardCmdFlag{
 					Name:           "Host",
@@ -38,6 +39,7 @@ func NewJoinTokenCmd() *JoinTokenCmd {
 					Usage:          "join-token -H <host> | join-token --host=<host>",
 					VerboseVersion: "--host",
 					ShortVersion:   "-H",
+					Present:        false,
 					NeedValue:      true,
 				},
 			},
@@ -46,14 +48,14 @@ func NewJoinTokenCmd() *JoinTokenCmd {
 }
 
 // CommandExec - Execs the command
-func (j JoinTokenCmd) CommandExec() {
+func (j JoinTokenCmd) CommandExec() error {
 
 	_, okHelp := j.IsCommandFlagUsed(JoinTokenCmdFlagHelp)
 
 	if okHelp {
 
 		ShowCommandHelp(j, true)
-		return
+		return nil
 	}
 
 	jtConfig := network.JoinTokenConfig{}
@@ -70,16 +72,20 @@ func (j JoinTokenCmd) CommandExec() {
 			if ok {
 				ShowFlagHelp(hostFlag, true)
 			}
-			os.Exit(1)
+			return nil
 		}
+
+		jtConfig.Host = host
 	}
 
 	joinToken, err := network.NewJoinTokenWithConfig(jtConfig)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	fmt.Println(j.JoinCommandSample(joinToken))
+
+	return nil
 }
 
 // JoinCommand - Returns the complete command to join a node

@@ -21,7 +21,7 @@ const (
 // Command - Defines a generic interface for a command
 type Command interface {
 	// CommandExec - Execs the command
-	CommandExec()
+	CommandExec() error
 	// GetCommandDescription - Returns a description of command
 	GetCommandDescription() string
 	// GetCommandName - Returns the command name
@@ -66,7 +66,10 @@ var availableCommands []Command
 var banner string
 
 func init() {
+	resetCommands()
+}
 
+func resetCommands() {
 	availableCommands = make([]Command, 0)
 
 	availableCommands = []Command{
@@ -96,7 +99,7 @@ func Parse() error {
 
 	if selectedCommand == nil {
 		ShowHelp(false)
-		os.Exit(0)
+		return nil
 	}
 
 	if len(os.Args) > 2 {
@@ -132,9 +135,7 @@ func Parse() error {
 		}
 	}
 
-	selectedCommand.CommandExec()
-
-	return nil
+	return selectedCommand.CommandExec()
 }
 
 // ShowBanner - Shows the banner

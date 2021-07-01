@@ -74,5 +74,7 @@ import (
 // }
 
 func main() {
-	cmd.Parse()
+	if err := cmd.Parse(); err != nil {
+		panic(err)
+	}
 }
