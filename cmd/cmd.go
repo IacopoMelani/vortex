@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 // MARK: Command & Flag interface
@@ -23,6 +24,10 @@ type Command interface {
 
 // Flag - Defines a generic interface for flags command
 type Flag interface {
+	// FlagIsPresent - Returns if the flag is passed
+	FlagIsPresent() bool
+	// FlagNeedValue - Returns true if the flag need a value in next os.Args
+	FlagNeedValue() bool
 	// GetFlagName - Returns the flag's name
 	GetFlagName() string
 	// GetFlagDescription - Returns the flag description
@@ -33,6 +38,12 @@ type Flag interface {
 	GetFlagVerboseVersion() string
 	// GetFlagUsage - Returns flag usages
 	GetFlagUsage() string
+	// GetFlagValue - Return the flag values passed
+	GetFlagValue() string
+	// SetFlagPresent - Set the value of Present for the flag
+	SetFlagPresent(value bool)
+	// SetFlagValue - Set the value passsed for the flag
+	SetFlagValue(value string)
 }
 
 var availableCommands []Command
@@ -69,6 +80,40 @@ func Parse() error {
 	if selectedCommand == nil {
 		fmt.Println("No commands specified")
 		os.Exit(1)
+	}
+
+	if len(os.Args) > 2 {
+
+		for index, argFlag := range os.Args[2:] {
+
+			for _, flag := range selectedCommand.GetCommandFlags() {
+
+				if argFlag == flag.GetFlagShortVersion() {
+
+					flag.SetFlagPresent(true)
+
+					if flag.FlagNeedValue() && len(os.Args) > index+2 && flag.GetFlagValue() == "" {
+
+						flag.SetFlagValue(os.Args[index+2+1])
+
+					}
+
+				} else if strings.Contains(argFlag, flag.GetFlagVerboseVersion()) {
+
+					flag.SetFlagPresent(true)
+
+					if flag.FlagNeedValue() && flag.GetFlagValue() == "" {
+
+						splittedArgFlag := strings.Split(argFlag, "=")
+
+						if len(splittedArgFlag) > 1 {
+							flag.SetFlagValue(splittedArgFlag[1])
+						}
+					}
+				}
+			}
+		}
+
 	}
 
 	selectedCommand.CommandExec()
@@ -115,6 +160,19 @@ type StandardCmdFlag struct {
 	ShortVersion   string
 	VerboseVersion string
 	Usage          string
+	Present        bool
+	NeedValue      bool
+	Value          string
+}
+
+// FlagIsPresent - Returns if the flag is passed
+func (s StandardCmdFlag) FlagIsPresent() bool {
+	return s.Present
+}
+
+// FlagNeedValue - Returns true if the flag need a value in next os.Args
+func (s StandardCmdFlag) FlagNeedValue() bool {
+	return s.NeedValue
 }
 
 // GetFlagDescription - Returns the flag description
@@ -140,6 +198,21 @@ func (s StandardCmdFlag) GetFlagVerboseVersion() string {
 // GetFlagUsage - Returns flag usages
 func (s StandardCmdFlag) GetFlagUsage() string {
 	return s.Usage
+}
+
+// GetFlagValue - Return the flag values passed
+func (s StandardCmdFlag) GetFlagValue() string {
+	return s.Value
+}
+
+// SetFlagPresent - Set the value of Present for the flag
+func (s *StandardCmdFlag) SetFlagPresent(value bool) {
+	s.Present = value
+}
+
+// SetFlagValue - Set the value passsed for the flag
+func (s *StandardCmdFlag) SetFlagValue(value string) {
+	s.Value = value
 }
 
 // MARK: Info commands consts
@@ -183,11 +256,11 @@ func NewJoinTokenCmd() *JoinTokenCmd {
 			Name:        "join-token",
 			Description: "Generate a single-use join token to the vortex network",
 			Usage:       "Go and use",
-			Flags:       make([]Flag, 0),
+			Flags:       []Flag{&StandardCmdFlag{Name: "sASSO", ShortVersion: "-s", VerboseVersion: "--sasso", NeedValue: true}},
 		},
 	}
 }
 
 func (j JoinTokenCmd) CommandExec() {
-	println("Good")
+	println("Join token")
 }
