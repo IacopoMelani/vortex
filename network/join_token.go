@@ -1,11 +1,9 @@
 package network
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
-	"github.com/IacopoMelani/vortex/cmd"
 	"github.com/IacopoMelani/vortex/utils"
 	"github.com/google/uuid"
 )
@@ -90,9 +88,4 @@ func (j *JoinToken) Value() string {
 	j.RLock()
 	defer j.RUnlock()
 	return j.value
-}
-
-// JoinCommand - Returns the complete command to join a node
-func (j *JoinToken) JoinCommand() string {
-	return fmt.Sprintf("%s --host %s --token %s", cmd.GetCommandJoinToNode(), j.Host(), j.Value())
 }

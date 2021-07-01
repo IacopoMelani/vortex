@@ -4,7 +4,8 @@ import "crypto/rand"
 
 const rune = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-func SecureRandomString(length int) (string, error) {
+// SecureRandomString - Returns a secure random string
+func SecureRandomString(length uint) (string, error) {
 	bytes := make([]byte, length)
 
 	if _, err := rand.Read(bytes); err != nil {

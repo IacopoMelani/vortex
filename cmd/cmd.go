@@ -2,8 +2,17 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/IacopoMelani/vortex/network"
+)
+
+// MARK: consts
+
+const (
+	VortexVersion = "0.0.1"
 )
 
 // MARK: Command & Flag interface
@@ -20,6 +29,8 @@ type Command interface {
 	GetCommandFlags() []Flag
 	// GetCommandUsage - Returns command usages
 	GetCommandUsage() string
+	// IsCommandFlagUsed - Returns The Flag interface if present
+	IsCommandFlagUsed(name string) (Flag, bool)
 }
 
 // Flag - Defines a generic interface for flags command
@@ -78,7 +89,7 @@ func Parse() error {
 	}
 
 	if selectedCommand == nil {
-		fmt.Println("No commands specified")
+		ShowHelp(true)
 		os.Exit(1)
 	}
 
@@ -88,7 +99,7 @@ func Parse() error {
 
 			for _, flag := range selectedCommand.GetCommandFlags() {
 
-				if argFlag == flag.GetFlagShortVersion() {
+				if flag.GetFlagShortVersion() != "" && argFlag == flag.GetFlagShortVersion() {
 
 					flag.SetFlagPresent(true)
 
@@ -98,7 +109,7 @@ func Parse() error {
 
 					}
 
-				} else if strings.Contains(argFlag, flag.GetFlagVerboseVersion()) {
+				} else if flag.GetFlagVerboseVersion() != "" && strings.Contains(argFlag, flag.GetFlagVerboseVersion()) {
 
 					flag.SetFlagPresent(true)
 
@@ -113,12 +124,50 @@ func Parse() error {
 				}
 			}
 		}
-
 	}
 
 	selectedCommand.CommandExec()
 
 	return nil
+}
+
+// ShowBanner - Shows the banner
+func ShowBanner() {
+	b, err := ioutil.ReadFile("cmd/banner.txt")
+	if err != nil {
+		panic(err)
+	}
+	str := strings.Replace(string(b), "<VERSION>", VortexVersion, -1)
+	fmt.Println(str)
+}
+
+// ShowCommandHelp -  Shows the help for current command
+func ShowCommandHelp(command Command, withUsage bool) {
+
+	fmt.Printf("%s help command list\n\n", command.GetCommandName())
+
+	for _, flag := range command.GetCommandFlags() {
+		ShowFlagHelp(flag, withUsage)
+	}
+
+	fmt.Printf("\n")
+}
+
+// ShowFlagHelp - Shows the help for current flag
+func ShowFlagHelp(flag Flag, withUsage bool) {
+	if withUsage {
+		fmt.Printf("%s\t%s\n\t%s\n\n", flag.GetFlagName(), flag.GetFlagDescription(), flag.GetFlagUsage())
+	} else {
+		fmt.Printf("%s\t%s\n", flag.GetFlagName(), flag.GetFlagDescription())
+	}
+}
+
+// ShowHelp - Shows the full help commands
+func ShowHelp(withUsage bool) {
+	ShowBanner()
+	for _, command := range availableCommands {
+		ShowCommandHelp(command, withUsage)
+	}
 }
 
 // MARK: StandardCmd & Command implementation
@@ -149,6 +198,19 @@ func (s StandardCmd) GetCommandFlags() []Flag {
 // GetCommandUsage - Returns command usages
 func (s StandardCmd) GetCommandUsage() string {
 	return s.Usage
+}
+
+// IsCommandFlagUsed - Returns The Flag interface if present
+func (s StandardCmd) IsCommandFlagUsed(name string) (Flag, bool) {
+
+	for _, flag := range s.Flags {
+
+		if flag.GetFlagName() == name && flag.FlagIsPresent() {
+			return flag, true
+		}
+	}
+
+	return nil, false
 }
 
 // MARK: StandardCmdFlag & Flag implementation
@@ -256,11 +318,66 @@ func NewJoinTokenCmd() *JoinTokenCmd {
 			Name:        "join-token",
 			Description: "Generate a single-use join token to the vortex network",
 			Usage:       "Go and use",
-			Flags:       []Flag{&StandardCmdFlag{Name: "sASSO", ShortVersion: "-s", VerboseVersion: "--sasso", NeedValue: true}},
+			Flags: []Flag{
+				&StandardCmdFlag{
+					Name:           "Help",
+					Description:    "Show this message",
+					Usage:          "join-token -h | join-token --help",
+					ShortVersion:   "-h",
+					VerboseVersion: "--help",
+				},
+				&StandardCmdFlag{
+					Name:           "Host",
+					Description:    "Used for specify the host for join token",
+					Usage:          "join-token -H <HOST> | join-token --host=<HOST>",
+					VerboseVersion: "--host",
+					ShortVersion:   "-H",
+					NeedValue:      true,
+				},
+			},
 		},
 	}
 }
 
+// CommandExec - Execs the command
 func (j JoinTokenCmd) CommandExec() {
-	println("Join token")
+
+	_, ok := j.IsCommandFlagUsed("Help")
+
+	if ok {
+
+		fmt.Printf("join-token help command list\n\n")
+
+		for _, flag := range j.GetCommandFlags() {
+			fmt.Printf("%s\t%s\n\t%s\n\n", flag.GetFlagName(), flag.GetFlagDescription(), flag.GetFlagUsage())
+		}
+
+		fmt.Printf("\n")
+		return
+	}
+
+	jtConfig := network.JoinTokenConfig{}
+
+	hostFlag, ok := j.IsCommandFlagUsed("Host")
+
+	if ok {
+
+		host := hostFlag.GetFlagValue()
+		if host != "" {
+			jtConfig.Host = host
+		}
+	}
+
+	joinToken, err := network.NewJoinTokenWithConfig(jtConfig)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(j.JoinCommandSample(joinToken))
+}
+
+// JoinCommand - Returns the complete command to join a node
+func (j JoinTokenCmd) JoinCommandSample(jt *network.JoinToken) string {
+
+	return fmt.Sprintf("\n%s --host=%s --token=%s\n", GetCommandJoinToNode(), jt.Host(), jt.Value())
 }
