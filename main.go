@@ -74,18 +74,5 @@ import (
 // }
 
 func main() {
-
 	cmd.Parse()
-
-	// node, err := network.NewNode()
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// joinToken, err := node.NewJoinToken()
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// fmt.Println(joinToken.JoinCommand())
 }
