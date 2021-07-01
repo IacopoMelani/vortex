@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/IacopoMelani/vortex/network"
+	"github.com/IacopoMelani/vortex/core/network"
 )
 
 const (
