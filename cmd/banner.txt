@@ -6,4 +6,4 @@
    \ `\___/\ \____/\ \_\  \ \__\ \____\/\_/\_\
     `\/__/  \/___/  \/_/   \/__/\/____/\//\/_/(<VERSION>)
 
-The Decentralized storage network
+The Decentralized Storage Network
