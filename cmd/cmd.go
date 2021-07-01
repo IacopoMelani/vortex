@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
+
+	_ "embed"
 
 	"github.com/IacopoMelani/vortex/network"
 )
@@ -59,6 +60,9 @@ type Flag interface {
 
 var availableCommands []Command
 
+//go:embed banner.txt
+var banner string
+
 func init() {
 
 	availableCommands = make([]Command, 0)
@@ -89,7 +93,7 @@ func Parse() error {
 	}
 
 	if selectedCommand == nil {
-		ShowHelp(true)
+		ShowHelp(false)
 		os.Exit(1)
 	}
 
@@ -133,30 +137,33 @@ func Parse() error {
 
 // ShowBanner - Shows the banner
 func ShowBanner() {
-	b, err := ioutil.ReadFile("cmd/banner.txt")
-	if err != nil {
-		panic(err)
-	}
-	str := strings.Replace(string(b), "<VERSION>", VortexVersion, -1)
+	str := strings.Replace(banner, "<VERSION>", VortexVersion, -1)
 	fmt.Println(str)
 }
 
 // ShowCommandHelp -  Shows the help for current command
 func ShowCommandHelp(command Command, withUsage bool) {
 
-	fmt.Printf("%s help command list\n\n", command.GetCommandName())
+	if withUsage {
 
-	for _, flag := range command.GetCommandFlags() {
-		ShowFlagHelp(flag, withUsage)
+		fmt.Printf("%s command\n\n", command.GetCommandName())
+
+	} else {
+
+		fmt.Printf("\t%s\t%s\n\n", command.GetCommandName(), command.GetCommandDescription())
 	}
 
-	fmt.Printf("\n")
+	if withUsage {
+		for _, flag := range command.GetCommandFlags() {
+			ShowFlagHelp(flag, withUsage)
+		}
+	}
 }
 
 // ShowFlagHelp - Shows the help for current flag
 func ShowFlagHelp(flag Flag, withUsage bool) {
 	if withUsage {
-		fmt.Printf("%s\t%s\n\t%s\n\n", flag.GetFlagName(), flag.GetFlagDescription(), flag.GetFlagUsage())
+		fmt.Printf("\t%s\t%s\n\tUsage:\t\t%s\n\n", flag.GetFlagShortVersion()+" "+flag.GetFlagVerboseVersion(), flag.GetFlagDescription(), flag.GetFlagUsage())
 	} else {
 		fmt.Printf("%s\t%s\n", flag.GetFlagName(), flag.GetFlagDescription())
 	}
@@ -165,9 +172,12 @@ func ShowFlagHelp(flag Flag, withUsage bool) {
 // ShowHelp - Shows the full help commands
 func ShowHelp(withUsage bool) {
 	ShowBanner()
+	fmt.Printf("Usage:\n\tvortex <command> [arguments]\n\n")
+	fmt.Println("the commands are:")
 	for _, command := range availableCommands {
 		ShowCommandHelp(command, withUsage)
 	}
+	fmt.Printf("Use vortex <command> -h to show command help\n\n")
 }
 
 // MARK: StandardCmd & Command implementation
@@ -316,7 +326,7 @@ func NewJoinTokenCmd() *JoinTokenCmd {
 	return &JoinTokenCmd{
 		StandardCmd: StandardCmd{
 			Name:        "join-token",
-			Description: "Generate a single-use join token to the vortex network",
+			Description: "Generates a single-use join token to the vortex network",
 			Usage:       "Go and use",
 			Flags: []Flag{
 				&StandardCmdFlag{
@@ -346,12 +356,7 @@ func (j JoinTokenCmd) CommandExec() {
 
 	if ok {
 
-		fmt.Printf("join-token help command list\n\n")
-
-		for _, flag := range j.GetCommandFlags() {
-			fmt.Printf("%s\t%s\n\t%s\n\n", flag.GetFlagName(), flag.GetFlagDescription(), flag.GetFlagUsage())
-		}
-
+		ShowCommandHelp(j, true)
 		fmt.Printf("\n")
 		return
 	}
