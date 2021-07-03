@@ -18,6 +18,10 @@ type AppNode struct {
 	AppStandard
 	sync.RWMutex
 	node *network.Node
+	// file system manager
+	// communicator
+	// api repository
+	// Blockchain
 }
 
 // NewAppNode - Returns an instance of Application for Vortex Network
@@ -59,4 +63,13 @@ func (an *AppNode) Version() string {
 	an.RLock()
 	defer an.RUnlock()
 	return an.version
+}
+
+// MARK: AppNode exported
+
+// NewJoinToken - Return a new NewJoinToken
+func (an *AppNode) NewJoinToken() (*network.JoinToken, error) {
+	an.Lock()
+	defer an.Unlock()
+	return an.node.NewJoinToken()
 }
