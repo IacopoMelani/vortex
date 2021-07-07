@@ -1,7 +1,9 @@
 package app
 
 import (
+	"fmt"
 	"sync"
+	"time"
 
 	"github.com/IacopoMelani/vortex/core/network"
 )
@@ -72,4 +74,11 @@ func (an *AppNode) NewJoinToken() (*network.JoinToken, error) {
 	an.Lock()
 	defer an.Unlock()
 	return an.node.NewJoinToken()
+}
+
+func (an *AppNode) Start() {
+	for {
+		time.Sleep(1 * time.Second)
+		fmt.Println("Do something")
+	}
 }

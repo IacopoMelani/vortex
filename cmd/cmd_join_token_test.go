@@ -10,7 +10,7 @@ func TestCmdJoinToken(t *testing.T) {
 	oldArgs := os.Args
 	defer func() {
 		os.Args = oldArgs
-		resetCommands()
+		appCLI.resetCommands()
 	}()
 
 	// vortex join-token
@@ -27,7 +27,7 @@ func TestCmdJoinTokenHelp(t *testing.T) {
 	oldArgs := os.Args
 	defer func() {
 		os.Args = oldArgs
-		resetCommands()
+		appCLI.resetCommands()
 	}()
 
 	// vortex join-token -h
@@ -38,7 +38,7 @@ func TestCmdJoinTokenHelp(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	resetCommands()
+	appCLI.resetCommands()
 
 	// vortex join-token -h
 
@@ -54,7 +54,7 @@ func TestCmdJoinTokenHost(t *testing.T) {
 	oldArgs := os.Args
 	defer func() {
 		os.Args = oldArgs
-		resetCommands()
+		appCLI.resetCommands()
 	}()
 
 	// vortex join-token -H
@@ -65,7 +65,7 @@ func TestCmdJoinTokenHost(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	resetCommands()
+	appCLI.resetCommands()
 
 	// vortex join-token -H <host>
 
@@ -75,7 +75,7 @@ func TestCmdJoinTokenHost(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	resetCommands()
+	appCLI.resetCommands()
 
 	// vortex join-token --host
 
@@ -85,7 +85,7 @@ func TestCmdJoinTokenHost(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	resetCommands()
+	appCLI.resetCommands()
 
 	// vortex join-token ---host=<host>
 

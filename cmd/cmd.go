@@ -7,16 +7,45 @@ import (
 
 	_ "embed"
 
+	"github.com/IacopoMelani/vortex/core/app"
 	"github.com/fatih/color"
 )
 
-// MARK: consts
+// MARK: consts & vars
 
 const (
 	VortexCLIVersion = "0.0.1"
 )
 
-// MARK: Command & Flag interface
+var (
+	appCLI AppCLI
+
+	//go:embed banner.txt
+	banner string
+)
+
+// MARK: AppCLI, Command & Flag interface
+
+// AppCLI - Defines the general Application in CLI Mode
+type AppCLI struct {
+	app.AppStandard
+	availableCommands []Command
+}
+
+func NewAppCLI() *AppCLI {
+	return &AppCLI{
+		availableCommands: make([]Command, 0),
+		AppStandard:       *app.NewApp("app-cli", VortexCLIVersion, app.VortexModeCLI),
+	}
+}
+
+func (ac *AppCLI) resetCommands() {
+	ac.availableCommands = make([]Command, 0)
+
+	ac.availableCommands = []Command{
+		*NewJoinTokenCmd(),
+	}
+}
 
 // Command - Defines a generic interface for a command
 type Command interface {
@@ -60,21 +89,9 @@ type Flag interface {
 	SetFlagValue(value string)
 }
 
-var availableCommands []Command
-
-//go:embed banner.txt
-var banner string
-
 func init() {
-	resetCommands()
-}
-
-func resetCommands() {
-	availableCommands = make([]Command, 0)
-
-	availableCommands = []Command{
-		*NewJoinTokenCmd(),
-	}
+	appCLI = *NewAppCLI()
+	appCLI.resetCommands()
 }
 
 // Parse - Parse the args in the command line
@@ -88,7 +105,7 @@ func Parse() error {
 			break
 		}
 
-		for _, command := range availableCommands {
+		for _, command := range appCLI.availableCommands {
 
 			if command.GetCommandName() == arg {
 				selectedCommand = command
@@ -177,7 +194,7 @@ func ShowHelp(withUsage bool) {
 	ShowBanner()
 	fmt.Printf("Usage:\n\tvortex <command> [arguments]\n\n")
 	fmt.Println("the commands are:")
-	for _, command := range availableCommands {
+	for _, command := range appCLI.availableCommands {
 		ShowCommandHelp(command, withUsage)
 	}
 	fmt.Printf("Use vortex <command> -h to show command help\n\n")
