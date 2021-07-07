@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"text/tabwriter"
 
 	_ "embed"
 
@@ -44,6 +45,7 @@ func (ac *AppCLI) resetCommands() {
 
 	ac.availableCommands = []Command{
 		*NewJoinTokenCmd(),
+		*NewDeployCmd(),
 	}
 }
 
@@ -170,7 +172,9 @@ func ShowCommandHelp(command Command, withUsage bool) {
 
 	} else {
 
-		fmt.Printf("\t%s\t%s\n\n", command.GetCommandName(), command.GetCommandDescription())
+		w := tabwriter.NewWriter(os.Stdout, 20, 8, 1, ' ', tabwriter.TabIndent)
+		fmt.Fprintf(w, "    %s\t%s\n", command.GetCommandName(), command.GetCommandDescription())
+		w.Flush()
 	}
 
 	if withUsage {
@@ -197,7 +201,7 @@ func ShowHelp(withUsage bool) {
 	for _, command := range appCLI.availableCommands {
 		ShowCommandHelp(command, withUsage)
 	}
-	fmt.Printf("Use vortex <command> -h to show command help\n\n")
+	fmt.Printf("\nUse vortex <command> -h to show command help\n\n")
 }
 
 // ShowError - show an error on CLI

@@ -20,12 +20,12 @@ type JoinTokenCmd struct {
 func NewJoinTokenCmd() *JoinTokenCmd {
 	return &JoinTokenCmd{
 		StandardCmd: StandardCmd{
-			Name:        "join-token",
+			Name:        CommndGenerateJoinToken,
 			Description: "Generates a single-use join token to the vortex network",
-			Usage:       "Go and use",
+			Usage:       "vortex join-token",
 			Flags: []Flag{
 				&StandardCmdFlag{
-					Name:           "Help",
+					Name:           JoinTokenCmdFlagHelp,
 					Description:    "Show this message",
 					Usage:          "join-token -h | join-token --help",
 					ShortVersion:   "-h",
@@ -34,7 +34,7 @@ func NewJoinTokenCmd() *JoinTokenCmd {
 					NeedValue:      false,
 				},
 				&StandardCmdFlag{
-					Name:           "Host",
+					Name:           JoinTokenCmdFlagHost,
 					Description:    "Used for specify the host for join token",
 					Usage:          "join-token -H <host> | join-token --host=<host>",
 					VerboseVersion: "--host",
