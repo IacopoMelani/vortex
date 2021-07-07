@@ -76,7 +76,7 @@ func (an *AppNode) NewJoinToken() (*network.JoinToken, error) {
 	return an.node.NewJoinToken()
 }
 
-func (an *AppNode) Start() {
+func (an *AppNode) Start() error {
 	for {
 		time.Sleep(1 * time.Second)
 		fmt.Println("Do something")

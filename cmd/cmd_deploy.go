@@ -1,5 +1,9 @@
 package cmd
 
+import (
+	"github.com/IacopoMelani/vortex/core/app"
+)
+
 //DeployCmd - Defines command to deploy current host as Vortex node
 type DeployCmd struct {
 	StandardCmd
@@ -22,5 +26,7 @@ func (j DeployCmd) CommandExec() error {
 
 	println("deploy")
 
-	return nil
+	appNode := app.NewAppNode("node")
+
+	return appNode.Start()
 }
