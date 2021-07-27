@@ -1,0 +1,14 @@
+kind: pipeline
+type: docker
+name: vortex
+
+steps:
+  - name: Build & Test
+    image: golang:1.16.6
+    commands:
+      - go build
+      - test -timeout 30s ./... -race
+
+trigger:
+  branch:
+    - master
