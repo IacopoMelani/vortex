@@ -1,3 +1,4 @@
+---
 kind: pipeline
 type: docker
 name: vortex
@@ -12,3 +13,7 @@ steps:
 trigger:
   branch:
     - master
+---
+kind: signature
+hmac: 02ce0af0ae8905b42809318887210944fea9b7f7a22a15057ba676927ded1b73
+...
