@@ -14,46 +14,46 @@ trigger:
   branch:
     - master
 
----
-kind: pipeline
-type: docker
-name: Publish
+# ---
+# kind: pipeline
+# type: docker
+# name: Publish
 
-steps:
-  - name: Build & Test
-    image: golang:1.16.6
-    commands:
-      - go build -o vortex
-      - go test -timeout 30s ./... -race
+# steps:
+#   - name: Build & Test
+#     image: golang:1.16.6
+#     commands:
+#       - go build -o vortex
+#       - go test -timeout 30s ./... -race
 
-  - name: Prepare artifacts
-    commands:
-      - mkdir dist &&  mv vortex dist
+#   - name: Prepare artifacts
+#     commands:
+#       - mkdir dist &&  mv vortex dist
 
-  - name: publish
-    image: plugins/github-release
-    settings:
-      api_key:
-        from_secret: github_token
-      files: dist/*
-      checksum:
-        - md5
-        - sha1
-        - sha256
-        - sha512
-        - adler32
-        - crc32
-    when:
-      event: tag
+#   - name: publish
+#     image: plugins/github-release
+#     settings:
+#       api_key:
+#         from_secret: github_token
+#       files: dist/*
+#       checksum:
+#         - md5
+#         - sha1
+#         - sha256
+#         - sha512
+#         - adler32
+#         - crc32
+#     when:
+#       event: tag
 
-trigger:
-  event:
-    - tag
-    - promote
-    - rollback
+# trigger:
+#   event:
+#     - tag
+#     - promote
+#     - rollback
 
 ---
 kind: signature
-hmac: 41939fa4472840f62752348455024adc6bd5ab32cbd5736797909120dea6aaf4
+hmac: 1684d4a53b2dd96020d1683796efc7d7e26092918305c15f6c8cfb4e189deb5c
 
 ...
