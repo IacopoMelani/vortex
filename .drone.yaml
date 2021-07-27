@@ -7,7 +7,7 @@ steps:
     image: golang:1.16.6
     commands:
       - go build
-      - test -timeout 30s ./... -race
+      - go test -timeout 30s ./... -race
 
 trigger:
   branch:
