@@ -1,19 +1,59 @@
 ---
 kind: pipeline
 type: docker
-name: vortex
+name: CI
 
 steps:
   - name: Build & Test
     image: golang:1.16.6
     commands:
-      - go build
+      - go build  -o vortex
       - go test -timeout 30s ./... -race
 
 trigger:
   branch:
     - master
+
+---
+kind: pipeline
+type: docker
+name: Publish
+
+steps:
+  - name: Build & Test
+    image: golang:1.16.6
+    commands:
+      - go build -o vortex
+      - go test -timeout 30s ./... -race
+
+  - name: Prepare artifacts
+    commands:
+      - mkdir dist &&  mv vortex dist
+
+  - name: publish
+    image: plugins/github-release
+    settings:
+      api_key:
+        from_secret: github_token
+      files: dist/*
+      checksum:
+        - md5
+        - sha1
+        - sha256
+        - sha512
+        - adler32
+        - crc32
+    when:
+      event: tag
+
+trigger:
+  event:
+    - tag
+    - promote
+    - rollback
+
 ---
 kind: signature
-hmac: 02ce0af0ae8905b42809318887210944fea9b7f7a22a15057ba676927ded1b73
+hmac: 41939fa4472840f62752348455024adc6bd5ab32cbd5736797909120dea6aaf4
+
 ...
